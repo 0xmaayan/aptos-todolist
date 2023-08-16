@@ -1,7 +1,7 @@
 import { WalletSelector } from "@aptos-labs/wallet-adapter-ant-design";
 import { Layout, Row, Col, Button, Spin, List, Checkbox, Input } from "antd";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 
 import "@aptos-labs/wallet-adapter-ant-design/dist/index.css";
@@ -31,7 +31,6 @@ const client = createClient({
 }).useABI(ABI);
 
 function App() {
-  console.log("here");
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTask, setNewTask] = useState<string>("");
   const { account, signAndSubmitTransaction } = useWallet();
@@ -49,7 +48,7 @@ function App() {
     setNewTask(value);
   };
 
-  const fetchList = async () => {
+  const fetchList = useCallback(async () => {
     if (!accountAddr) return [];
     try {
       const todoListResource = await client.resource.TodoList({
@@ -61,7 +60,7 @@ function App() {
     } catch (e: any) {
       setAccountHasList(false);
     }
-  };
+  }, [accountAddr]);
 
   const addNewList = async () => {
     if (!account) return [];
@@ -177,7 +176,7 @@ function App() {
 
   useEffect(() => {
     fetchList();
-  }, [account?.address]);
+  }, [account?.address, fetchList]);
 
   return (
     <>
