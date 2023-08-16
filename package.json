@@ -2,7 +2,14 @@
   "name": "aptos-todolist",
   "version": "0.0.0",
   "scripts": {
-    "install": "cd frontend && npm install",
-    "start": "cd frontend && npm start"
+    "postinstall": "cd frontend && npm install",
+    "start": "cd frontend && npm start",
+    "move:init": "export $(cat .env | xargs) && aptos init --network=$NETWORK",
+    "move:compile": "aptos move compile --package-dir move --skip-fetch-latest-git-deps --named-addresses todolist_addr=$(npx aptos config show-profiles | grep 'account' | sed -n 's/.*\"account\": \"\\(.*\\)\".*/\\1/p')",
+    "move:test": "aptos move test --package-dir move --skip-fetch-latest-git-deps --named-addresses todolist_addr=$(npx aptos config show-profiles | grep 'account' | sed -n 's/.*\"account\": \"\\(.*\\)\".*/\\1/p')",
+    "move:publish": "aptos move publish --package-dir move --skip-fetch-latest-git-deps --named-addresses todolist_addr=$(npx aptos config show-profiles | grep 'account' | sed -n 's/.*\"account\": \"\\(.*\\)\".*/\\1/p') --profile=default"
+  },
+  "devDependencies": {
+    "aptos-cli": "git+https://github.com/BriungRi/aptos-cli.git"
   }
 }
