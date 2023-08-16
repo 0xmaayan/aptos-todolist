@@ -7,13 +7,21 @@ import reportWebVitals from "./reportWebVitals";
 
 const wallets = [new PetraWallet()];
 
-const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
+const root = ReactDOM.createRoot(
+  document.getElementById("root") as HTMLElement
+);
 root.render(
   <React.StrictMode>
-    <AptosWalletAdapterProvider plugins={wallets} autoConnect={true}>
+    <AptosWalletAdapterProvider
+      plugins={wallets}
+      autoConnect={true}
+      onError={(error) => {
+        console.log("Custom error handling", error);
+      }}
+    >
       <App />
     </AptosWalletAdapterProvider>
-  </React.StrictMode>,
+  </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function
