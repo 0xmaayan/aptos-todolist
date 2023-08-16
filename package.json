@@ -5,9 +5,9 @@
     "postinstall": "cd frontend && npm install",
     "start": "export $(cat .env | xargs) && cd frontend && npm start",
     "move:init": "export $(cat .env | xargs) && aptos init --network=$REACT_APP_NETWORK --profile=$REACT_APP_NETWORK",
-    "move:compile": "export $(cat .env | xargs) && aptos move compile --package-dir move --skip-fetch-latest-git-deps --named-addresses todolist_addr=$(npx aptos config show-profiles --profile=$REACT_APP_NETWORK | grep 'account' | sed -n 's/.*\"account\": \"\\(.*\\)\".*/\\1/p')",
-    "move:test": "export $(cat .env | xargs) && aptos move test --package-dir move --skip-fetch-latest-git-deps --named-addresses todolist_addr=$(npx aptos config show-profiles --profile=$REACT_APP_NETWORK | grep 'account' | sed -n 's/.*\"account\": \"\\(.*\\)\".*/\\1/p')",
-    "move:publish": "export $(cat .env | xargs) && aptos move publish --package-dir move --skip-fetch-latest-git-deps --named-addresses todolist_addr=$(npx aptos config show-profiles --profile=$REACT_APP_NETWORK | grep 'account' | sed -n 's/.*\"account\": \"\\(.*\\)\".*/\\1/p') --profile=$REACT_APP_NETWORK && echo \"export const MODULE_ADDR = '0x$(npx aptos config show-profiles --profile=$REACT_APP_NETWORK | grep 'account' | sed -n 's/.*\"account\": \"\\(.*\\)\".*/\\1/p')'\" > frontend/src/constants.ts"
+    "move:compile": "export $(cat .env | xargs) && aptos move compile --package-dir move --skip-fetch-latest-git-deps --named-addresses todolist_addr=$(./scripts/get_module_addr.sh)",
+    "move:test": "export $(cat .env | xargs) && aptos move test --package-dir move --skip-fetch-latest-git-deps --named-addresses todolist_addr=$(./scripts/get_module_addr.sh)",
+    "move:publish": "export $(cat .env | xargs) && aptos move publish --package-dir move --skip-fetch-latest-git-deps --named-addresses todolist_addr=$(./scripts/get_module_addr.sh) --profile=$REACT_APP_NETWORK && ./scripts/generate_module_addr.sh"
   },
   "devDependencies": {
     "aptos-cli": "git+https://github.com/BriungRi/aptos-cli.git"
