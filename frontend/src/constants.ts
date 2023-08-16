@@ -1,1 +1,0 @@
-export const MODULE_ADDR = '0x6aa754ff229863e3f6d63f6d5d6950d4e710e524eb943e8fbd415ccf2978ee29'

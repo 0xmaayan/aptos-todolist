@@ -7,7 +7,8 @@ import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import "@aptos-labs/wallet-adapter-ant-design/dist/index.css";
 import { CheckboxChangeEvent } from "antd/es/checkbox";
 import { Network, Provider } from "aptos";
-import { MODULE_ADDR } from "./constants";
+import { createClient, createEntryPayload } from "@thalalabs/surf";
+import { ABI } from "./abi";
 
 type Task = {
   address: string;
@@ -26,11 +27,19 @@ let network =
     : Network.LOCAL;
 
 export const provider = new Provider(network);
+const client = createClient({
+  nodeUrl: provider.aptosClient.nodeUrl,
+}).useABI(ABI);
 
 function App() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTask, setNewTask] = useState<string>("");
   const { account, signAndSubmitTransaction } = useWallet();
+  const accountAddr: `0x${string}` | null = account
+    ? account.address.startsWith("0x")
+      ? (account.address as `0x${string}`)
+      : `0x${account.address}`
+    : null;
   const [accountHasList, setAccountHasList] = useState<boolean>(false);
   const [transactionInProgress, setTransactionInProgress] =
     useState<boolean>(false);
@@ -41,26 +50,27 @@ function App() {
   };
 
   const fetchList = async () => {
-    if (!account) return [];
+    if (!accountAddr) return [];
     try {
-      const todoListResource = await provider.getAccountResource(
-        account?.address,
-        `${MODULE_ADDR}::todolist::TodoList`
-      );
+      const todoListResource = await client.resource.TodoList({
+        type_arguments: [],
+        account: accountAddr,
+      });
       setAccountHasList(true);
       // tasks table handle
-      const tableHandle = (todoListResource as any).data.tasks.handle;
+      const tableHandle = todoListResource.data.tasks.handle;
       // tasks table counter
-      const taskCounter = (todoListResource as any).data.task_counter;
+      const taskCounter = Number(todoListResource.data.task_counter);
 
       let tasks = [];
       let counter = 1;
       while (counter <= taskCounter) {
         const tableItem = {
           key_type: "u64",
-          value_type: `${MODULE_ADDR}::todolist::Task`,
+          value_type: `${ABI.address}::todolist::Task`,
           key: `${counter}`,
         };
+        // TODO: Type table fetch
         const task = await provider.getTableItem(tableHandle, tableItem);
         tasks.push(task);
         counter++;
@@ -78,9 +88,11 @@ function App() {
     // build a transaction payload to be submited
     const payload = {
       type: "entry_function_payload",
-      function: `${MODULE_ADDR}::todolist::create_list`,
-      type_arguments: [],
-      arguments: [],
+      ...createEntryPayload(ABI, {
+        function: "create_list",
+        type_arguments: [],
+        arguments: [],
+      }).rawPayload,
     };
     try {
       // sign and submit transaction to chain
@@ -102,9 +114,11 @@ function App() {
     // build a transaction payload to be submited
     const payload = {
       type: "entry_function_payload",
-      function: `${MODULE_ADDR}::todolist::create_task`,
-      type_arguments: [],
-      arguments: [newTask],
+      ...createEntryPayload(ABI, {
+        function: "create_task",
+        type_arguments: [],
+        arguments: [newTask],
+      }).rawPayload,
     };
 
     // hold the latest task.task_id from our local state
@@ -150,9 +164,11 @@ function App() {
     setTransactionInProgress(true);
     const payload = {
       type: "entry_function_payload",
-      function: `${MODULE_ADDR}::todolist::complete_task`,
-      type_arguments: [],
-      arguments: [taskId],
+      ...createEntryPayload(ABI, {
+        function: "complete_task",
+        type_arguments: [],
+        arguments: [taskId],
+      }).rawPayload,
     };
 
     try {
