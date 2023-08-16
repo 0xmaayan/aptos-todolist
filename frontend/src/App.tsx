@@ -14,7 +14,6 @@ type Task = {
   address: string;
   completed: boolean;
   content: string;
-  task_id: string;
 };
 
 let network =
@@ -58,26 +57,7 @@ function App() {
         account: accountAddr,
       });
       setAccountHasList(true);
-      // tasks table handle
-      const tableHandle = todoListResource.data.tasks.handle;
-      // tasks table counter
-      const taskCounter = Number(todoListResource.data.task_counter);
-
-      let tasks = [];
-      let counter = 1;
-      while (counter <= taskCounter) {
-        const tableItem = {
-          key_type: "u64",
-          value_type: `${ABI.address}::todolist::Task`,
-          key: `${counter}`,
-        };
-        // TODO: Type table fetch
-        const task = await provider.getTableItem(tableHandle, tableItem);
-        tasks.push(task);
-        counter++;
-      }
-      // set tasks in local state
-      setTasks(tasks);
+      setTasks(todoListResource.data.tasks as Task[]);
     } catch (e: any) {
       setAccountHasList(false);
     }
@@ -123,15 +103,12 @@ function App() {
     };
 
     // hold the latest task.task_id from our local state
-    const latestId =
-      tasks.length > 0 ? parseInt(tasks[tasks.length - 1].task_id) + 1 : 1;
 
     // build a newTaskToPush objct into our local state
     const newTaskToPush = {
       address: account.address,
       completed: false,
       content: newTask,
-      task_id: latestId + "",
     };
 
     try {
@@ -158,7 +135,7 @@ function App() {
 
   const onCheckboxChange = async (
     event: CheckboxChangeEvent,
-    taskId: string
+    taskId: number
   ) => {
     if (!account) return;
     if (!event.target.checked) return;
@@ -179,9 +156,9 @@ function App() {
       await provider.waitForTransaction(response.hash);
 
       setTasks((prevState) => {
-        const newState = prevState.map((obj) => {
+        const newState = prevState.map((obj, idx) => {
           // if task_id equals the checked taskId, update completed property
-          if (obj.task_id === taskId) {
+          if (idx === taskId) {
             return { ...obj, completed: true };
           }
 
@@ -258,7 +235,7 @@ function App() {
                   size="small"
                   bordered
                   dataSource={tasks}
-                  renderItem={(task: Task) => (
+                  renderItem={(task: Task, idx) => (
                     <List.Item
                       actions={[
                         <div>
@@ -266,9 +243,7 @@ function App() {
                             <Checkbox defaultChecked={true} disabled />
                           ) : (
                             <Checkbox
-                              onChange={(event) =>
-                                onCheckboxChange(event, task.task_id)
-                              }
+                              onChange={(event) => onCheckboxChange(event, idx)}
                             />
                           )}
                         </div>,
@@ -280,6 +255,7 @@ function App() {
                           <a
                             href={`https://explorer.aptoslabs.com/account/${task.address}/`}
                             target="_blank"
+                            rel="noreferrer"
                           >{`${task.address.slice(0, 6)}...${task.address.slice(
                             -5
                           )}`}</a>
