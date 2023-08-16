@@ -7,6 +7,7 @@ import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import "@aptos-labs/wallet-adapter-ant-design/dist/index.css";
 import { CheckboxChangeEvent } from "antd/es/checkbox";
 import { Network, Provider } from "aptos";
+import { MODULE_ADDR } from "./constants";
 
 type Task = {
   address: string;
@@ -25,8 +26,6 @@ let network =
     : Network.LOCAL;
 
 export const provider = new Provider(network);
-// change this to be your module account address
-export const moduleAddress = process.env.REACT_APP_MODULE_ADDR;
 
 function App() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -46,7 +45,7 @@ function App() {
     try {
       const todoListResource = await provider.getAccountResource(
         account?.address,
-        `${moduleAddress}::todolist::TodoList`
+        `${MODULE_ADDR}::todolist::TodoList`
       );
       setAccountHasList(true);
       // tasks table handle
@@ -59,7 +58,7 @@ function App() {
       while (counter <= taskCounter) {
         const tableItem = {
           key_type: "u64",
-          value_type: `${moduleAddress}::todolist::Task`,
+          value_type: `${MODULE_ADDR}::todolist::Task`,
           key: `${counter}`,
         };
         const task = await provider.getTableItem(tableHandle, tableItem);
@@ -79,7 +78,7 @@ function App() {
     // build a transaction payload to be submited
     const payload = {
       type: "entry_function_payload",
-      function: `${moduleAddress}::todolist::create_list`,
+      function: `${MODULE_ADDR}::todolist::create_list`,
       type_arguments: [],
       arguments: [],
     };
@@ -103,7 +102,7 @@ function App() {
     // build a transaction payload to be submited
     const payload = {
       type: "entry_function_payload",
-      function: `${moduleAddress}::todolist::create_task`,
+      function: `${MODULE_ADDR}::todolist::create_task`,
       type_arguments: [],
       arguments: [newTask],
     };
@@ -151,7 +150,7 @@ function App() {
     setTransactionInProgress(true);
     const payload = {
       type: "entry_function_payload",
-      function: `${moduleAddress}::todolist::complete_task`,
+      function: `${MODULE_ADDR}::todolist::complete_task`,
       type_arguments: [],
       arguments: [taskId],
     };
