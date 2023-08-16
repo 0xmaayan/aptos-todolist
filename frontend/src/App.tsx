@@ -32,6 +32,7 @@ const client = createClient({
 }).useABI(ABI);
 
 function App() {
+  console.log("here");
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTask, setNewTask] = useState<string>("");
   const { account, signAndSubmitTransaction } = useWallet();
@@ -206,7 +207,7 @@ function App() {
       <Layout>
         <Row align="middle">
           <Col span={10} offset={2}>
-            <h1>Our todolist</h1>
+            <h1>My todolist</h1>
           </Col>
           <Col span={12} style={{ textAlign: "right", paddingRight: "200px" }}>
             <WalletSelector />
@@ -226,6 +227,9 @@ function App() {
               >
                 Add new list
               </Button>
+            </Col>
+            <Col span={8} offset={10}>
+              {!account && <h3>Connect a wallet to create a new list</h3>}
             </Col>
           </Row>
         ) : (

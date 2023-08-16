@@ -4,6 +4,8 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
+import Start from "./start";
+import { AlertProvider } from "./components/alertProvider";
 
 const wallets = [new PetraWallet()];
 
@@ -12,15 +14,9 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    <AptosWalletAdapterProvider
-      plugins={wallets}
-      autoConnect={true}
-      onError={(error) => {
-        console.log("Custom error handling", error);
-      }}
-    >
-      <App />
-    </AptosWalletAdapterProvider>
+    <AlertProvider>
+      <Start />
+    </AlertProvider>
   </React.StrictMode>
 );
 
