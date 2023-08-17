@@ -9,6 +9,7 @@ import { CheckboxChangeEvent } from "antd/es/checkbox";
 import { Network, Provider } from "aptos";
 import { createClient, createEntryPayload } from "@thalalabs/surf";
 import { ABI } from "./abi";
+import { useAlert } from "./components/alertProvider";
 
 type Task = {
   address: string;
@@ -31,9 +32,10 @@ const client = createClient({
 }).useABI(ABI);
 
 function App() {
+  const { setSuccessAlertHash } = useAlert();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTask, setNewTask] = useState<string>("");
-  const { account, signAndSubmitTransaction } = useWallet();
+  const { account, network, signAndSubmitTransaction } = useWallet();
   const accountAddr: `0x${string}` | null = account
     ? account.address.startsWith("0x")
       ? (account.address as `0x${string}`)
@@ -80,6 +82,7 @@ function App() {
       // wait for transaction
       await provider.waitForTransaction(response.hash);
       setAccountHasList(true);
+      setSuccessAlertHash(response.hash, network?.name);
     } catch (error: any) {
       setAccountHasList(false);
     } finally {
@@ -115,7 +118,7 @@ function App() {
       const response = await signAndSubmitTransaction(payload);
       // wait for transaction
       await provider.waitForTransaction(response.hash);
-
+      setSuccessAlertHash(response.hash, network?.name);
       // Create a new array based on current state:
       let newTasks = [...tasks];
 
@@ -153,7 +156,7 @@ function App() {
       const response = await signAndSubmitTransaction(payload);
       // wait for transaction
       await provider.waitForTransaction(response.hash);
-
+      setSuccessAlertHash(response.hash, network?.name);
       setTasks((prevState) => {
         const newState = prevState.map((obj, idx) => {
           // if task_id equals the checked taskId, update completed property
