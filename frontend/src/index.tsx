@@ -1,8 +1,6 @@
 import { PetraWallet } from "petra-plugin-wallet-adapter";
-import { AptosWalletAdapterProvider } from "@aptos-labs/wallet-adapter-react";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import Start from "./start";
 import { AlertProvider } from "./components/alertProvider";
