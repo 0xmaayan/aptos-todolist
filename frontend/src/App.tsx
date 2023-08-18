@@ -18,11 +18,11 @@ type Task = {
 };
 
 let network =
-  process.env.REACT_APP_NETWORK === "devnet"
+  import.meta.env.VITE_APP_NETWORK === "devnet"
     ? Network.DEVNET
-    : process.env.REACT_APP_NETWORK === "testnet"
+    : import.meta.env.VITE_APP_NETWORK === "testnet"
     ? Network.TESTNET
-    : process.env.REACT_APP_NETWORK === "mainnet"
+    : import.meta.env.VITE_APP_NETWORK === "mainnet"
     ? Network.MAINNET
     : Network.LOCAL;
 
